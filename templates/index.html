@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Flask App - SQLite</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+    <div class="container">
+        <!-- Sidebar lịch sử -->
+        <div class="sidebar">
+            <div class="sidebar-header">
+                <h2>📚 Lịch sử</h2>
+                <p>{{ history|length }} mục trong database</p>
+            </div>
+
+            <div class="action-buttons">
+
+                <button class="clear-all-btn" onclick="if(confirm('Xóa tất cả lịch sử?')) window.location.href='{{ url_for('main.clear_history') }}'">
+                    🗑️ Xóa hết
+                </button>
+            </div>
+
+            <div class="history-list">
+                {% if history %}
+                    {% for item in history %}
+                    <div class="history-item {% if current_id == item.id %}active{% endif %}"
+                         onclick="window.location.href='{{ url_for('main.view_content', history_id=item.id) }}'">
+                        <button class="delete-btn" onclick="event.stopPropagation(); if(confirm('Xóa mục này?')) window.location.href='{{ url_for('main.delete_content', history_id=item.id) }}'">×</button>
+                        <div class="title">{{ item.content }}</div>
+                        <div class="time">{{ format_time(item.created_at) }}</div>
+                    </div>
+                    {% endfor %}
+                {% else %}
+                    <div style="text-align: center; padding: 20px; color: #95a5a6;">
+                        Chưa có lịch sử nào
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- Phần nội dung chính -->
+        <div class="main-content">
+            <div class="content-header">
+                <h1>💬 Nội dung</h1>
+            </div>
+
+            <div class="content-body">
+                {% if current_content %}
+                <div class="content-display">
+                    <div class="meta">
+                        <strong>🆔 ID:</strong> #{{ current_content.id }}
+                        <strong>🕐 Thời gian:</strong> {{ format_time(current_content.created_at) }}<br>
+                    </div>
+                    <div class="content-text">
+                      Text :  {{ current_content.content }}
+                    </div>
+                    <div class="content-text">
+                      Sentiment :  {{ current_content.sentiment }}
+                    </div>
+                </div>
+                {% else %}
+                <div class="empty-state">
+                    <h2>👋 Chào mừng!</h2>
+                    <p>Nhập nội dung bên dưới để bắt đầu</p>
+                    <p style="margin-top: 10px; font-size: 0.9em;">Dữ liệu được lưu vào SQLite database</p>
+                </div>
+                {% endif %}
+            </div>
+
+            <div class="input-section">
+                <form class="input-form" method="POST" action="{{ url_for('main.add_content') }}">
+                    <input type="text" name="content" placeholder="Nhập nội dung của bạn..." required>
+                    <button type="submit">Gửi</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
