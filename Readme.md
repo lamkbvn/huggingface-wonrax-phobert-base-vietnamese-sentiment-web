@@ -13,9 +13,6 @@ với độ chính xác rất cao (~95%) và hỗ trợ cả văn bản thiếu 
 - Hiển thị độ tin cậy (confidence score)  
 - Không cần GPU, chạy mượt trên laptop thường  
 
-## Demo nhanh (ảnh chụp màn hình)
-![demo](https://raw.githubusercontent.com/lamkbvn/huggingface-wonrax-phobert-base-vietnamese-sentiment-web/main/static/demo.png)
-
 ## Yêu cầu hệ thống
 - Python 3.11 (khuyên dùng 3.11)
 
