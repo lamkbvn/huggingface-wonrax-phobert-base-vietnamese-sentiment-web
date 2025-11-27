@@ -16,7 +16,7 @@ với độ chính xác rất cao (~95%) và hỗ trợ cả văn bản thiếu 
 ## Yêu cầu hệ thống
 - Python 3.11 (khuyên dùng 3.11)
 
-## Cài đặt & chạy chỉ trong 1 phút
+## Cài đặt & chạy
 
 ```bash
 # 1. Clone dự án
