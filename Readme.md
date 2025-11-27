@@ -61,7 +61,3 @@ Mở trình duyệt và truy cập: http://127.0.0.1:5000
 - Email: lamkbvn@gmail.com  
 - GitHub: https://github.com/lamkbvn
 
-## Giấy phép
-MIT License – bạn được tự do sử dụng, chỉnh sửa, thương mại hóa.
-
----
