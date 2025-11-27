@@ -1,4 +1,6 @@
-from flask import Blueprint, render_template, request, redirect, url_for
+
+from datetime import datetime
+from flask import Blueprint, render_template, request, redirect, url_for, jsonify
 from models import (get_all_history, get_history_by_id, add_history,
                     delete_history, clear_all_history)
 from phobertbasevietnamesesentiment import predict_sentiment
@@ -26,10 +28,22 @@ def add_content():
     """Thêm nội dung mới"""
     content = request.form.get('content', '').strip()
     if content:
-        sentiment =  predict_sentiment(content)
-        new_id = add_history( content , sentiment)
-        return redirect(url_for('main.view_content', history_id=new_id))
-    return redirect(url_for('main.index'))
+        sentiment = predict_sentiment(content)
+        new_id = add_history(content, sentiment)
+
+        # Lấy bản ghi vừa tạo từ database để có thời gian chính xác
+        new_record = get_history_by_id(new_id)
+
+        # Trả về JSON
+        return jsonify({
+            'success': True,
+            'id': new_record['id'],
+            'content': new_record['content'],
+            'sentiment': new_record['sentiment'],
+            'time': format_time(new_record['created_at'])
+        })
+
+    return jsonify({'success': False, 'error': 'Nội dung trống'}), 400
 
 
 @main_bp.route('/view/<int:history_id>')

@@ -5,24 +5,85 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Flask App - SQLite</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <style>
+        /* Loading overlay styles */
+        .loading-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.7);
+            z-index: 9999;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .loading-overlay.active {
+            display: flex;
+        }
+
+        .loading-content {
+            background: white;
+            padding: 30px 40px;
+            border-radius: 12px;
+            text-align: center;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+        }
+
+        .spinner {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #3498db;
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 20px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .loading-text {
+            font-size: 16px;
+            color: #333;
+            margin: 0;
+        }
+
+        /* Disabled state for button */
+        button:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+    </style>
 </head>
 <body>
+    <!-- Loading Overlay -->
+    <div class="loading-overlay" id="loadingOverlay">
+        <div class="loading-content">
+            <div class="spinner"></div>
+            <p class="loading-text">Đang xử lý dữ liệu...</p>
+        </div>
+    </div>
+
     <div class="container">
         <!-- Sidebar lịch sử -->
         <div class="sidebar">
             <div class="sidebar-header">
                 <h2>📚 Lịch sử</h2>
-                <p>{{ history|length }} mục trong database</p>
+                <p id="historyCount">{{ history|length }} mục trong database</p>
             </div>
 
             <div class="action-buttons">
-
                 <button class="clear-all-btn" onclick="if(confirm('Xóa tất cả lịch sử?')) window.location.href='{{ url_for('main.clear_history') }}'">
                     🗑️ Xóa hết
                 </button>
             </div>
 
-            <div class="history-list">
+            <div class="history-list" id="historyList">
                 {% if history %}
                     {% for item in history %}
                     <div class="history-item {% if current_id == item.id %}active{% endif %}"
@@ -46,7 +107,7 @@
                 <h1>💬 Nội dung</h1>
             </div>
 
-            <div class="content-body">
+            <div class="content-body" id="contentBody">
                 {% if current_content %}
                 <div class="content-display">
                     <div class="meta">
@@ -54,10 +115,10 @@
                         <strong>🕐 Thời gian:</strong> {{ format_time(current_content.created_at) }}<br>
                     </div>
                     <div class="content-text">
-                      Text :  {{ current_content.content }}
+                      Text : {{ current_content.content }}
                     </div>
                     <div class="content-text">
-                      Sentiment :  {{ current_content.sentiment }}
+                      Sentiment : {{ current_content.sentiment }}
                     </div>
                 </div>
                 {% else %}
@@ -70,12 +131,98 @@
             </div>
 
             <div class="input-section">
-                <form class="input-form" method="POST" action="{{ url_for('main.add_content') }}">
-                    <input type="text" name="content" placeholder="Nhập nội dung của bạn..." required>
-                    <button type="submit">Gửi</button>
+                <form class="input-form" id="contentForm" novalidate>
+                    <!-- Thông báo lỗi nằm trên -->
+                    <div id="errorMessage" class="error-message">Vui lòng nhập nội dung!</div>
+
+                    <!-- Input + Button nằm ngang -->
+                    <div class="input-row">
+                        <input type="text" id="contentInput" name="content" placeholder="Nhập nội dung..." required>
+                        <button type="submit" id="submitBtn">Gửi</button>
+                    </div>
                 </form>
             </div>
         </div>
     </div>
+
+<script>
+document.getElementById('contentForm').addEventListener('submit', async function(e) {
+    e.preventDefault(); // Luôn ngăn submit mặc định
+
+    const input = document.getElementById('contentInput');
+    const error = document.getElementById('errorMessage');
+    const submitBtn = document.getElementById('submitBtn');
+    const loadingOverlay = document.getElementById('loadingOverlay');
+
+    if (!input.value.trim()) {
+        error.style.display = 'block';
+        return;
+    }
+
+    error.style.display = 'none';
+
+    // Hiển thị loading
+    loadingOverlay.classList.add('active');
+    submitBtn.disabled = true;
+    input.disabled = true;
+    submitBtn.textContent = 'Đang xử lý...';
+
+    try {
+        // Gửi request AJAX
+        const formData = new FormData();
+        formData.append('content', input.value.trim());
+
+        const response = await fetch('/add', {
+            method: 'POST',
+            body: formData
+        });
+
+        if (response.ok) {
+            const result = await response.json();
+
+            // Cập nhật giao diện với kết quả mới
+            updateContent(result);
+
+            // Xóa input
+            input.value = '';
+
+            // Reload để cập nhật sidebar (hoặc bạn có thể cập nhật động)
+            setTimeout(() => {
+                window.location.reload();
+            }, 500);
+        } else {
+            alert('Có lỗi xảy ra! Vui lòng thử lại.');
+        }
+    } catch (error) {
+        console.error('Error:', error);
+        alert('Không thể kết nối đến server!');
+    } finally {
+        // Ẩn loading và enable lại controls
+        loadingOverlay.classList.remove('active');
+        submitBtn.disabled = false;
+        input.disabled = false;
+        submitBtn.textContent = 'Gửi';
+    }
+});
+
+function updateContent(data) {
+    const contentBody = document.getElementById('contentBody');
+    contentBody.innerHTML = `
+        <div class="content-display">
+            <div class="meta">
+                <strong>🆔 ID:</strong> #${data.id}
+                <strong>🕐 Thời gian:</strong> ${data.time}<br>
+            </div>
+            <div class="content-text">
+              Text : ${data.content}
+            </div>
+            <div class="content-text">
+              Sentiment : ${data.sentiment}
+            </div>
+        </div>
+    `;
+}
+</script>
+
 </body>
 </html>

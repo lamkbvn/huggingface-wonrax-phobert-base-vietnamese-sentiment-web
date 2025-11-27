@@ -1,4 +1,6 @@
 import sqlite3
+from datetime import datetime, timedelta
+
 from config import Config
 
 def get_db_connection():
@@ -47,8 +49,14 @@ def add_history( content ,  sentiment):
     """Thêm mục mới"""
     conn = get_db_connection()
     cursor = conn.cursor()
-    cursor.execute('INSERT INTO history ( content ,  sentiment) '
-                                    'VALUES ( ? , ?)',( content , sentiment))
+    # Lấy thời gian Việt Nam (UTC+7)
+    vn_time = datetime.now()
+    vn_time_str = vn_time.strftime('%Y-%m-%d %H:%M:%S')
+
+    cursor = conn.execute(
+        'INSERT INTO history (content, sentiment, created_at) VALUES (?, ?, ?)',
+        (content, sentiment, vn_time_str)
+    )
     conn.commit()
     new_id = cursor.lastrowid
     conn.close()

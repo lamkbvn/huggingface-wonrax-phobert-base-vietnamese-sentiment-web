@@ -200,41 +200,60 @@
             background: white;
             border-top: 2px solid #ecf0f1;
         }
+        /* Form chung theo chiều dọc */
+.input-form {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
 
-        .input-form {
-            display: flex;
-            gap: 10px;
-        }
+/* Hàng chứa input + button */
+.input-row {
+    display: flex;
+    gap: 10px;
+}
 
-        .input-form input {
-            flex: 1;
-            padding: 15px;
-            border: 2px solid #e0e0e0;
-            border-radius: 10px;
-            font-size: 16px;
-            transition: all 0.3s;
-        }
+/* Ô input */
+.input-row input {
+    flex: 1;
+    padding: 15px;
+    border: 2px solid #e0e0e0;
+    border-radius: 10px;
+    font-size: 16px;
+    transition: all 0.3s;
+}
 
-        .input-form input:focus {
-            outline: none;
-            border-color: #3498db;
-        }
+.input-row input:focus {
+    outline: none;
+    border-color: #3498db;
+}
 
-        .input-form button {
-            padding: 15px 30px;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            border: none;
-            border-radius: 10px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.3s;
-        }
+/* Nút gửi */
+.input-row button {
+    padding: 15px 30px;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    border: none;
+    border-radius: 10px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s;
+}
 
-        .input-form button:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.3);
-        }
+.input-row button:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(102, 126, 234, 0.3);
+}
+
+/* Thông báo lỗi */
+.error-message {
+    display: none;
+    color: red;
+    margin-bottom: -4px;
+    font-size: 14px;
+}
+
+
 
         .empty-state {
             text-align: center;
@@ -270,3 +289,6 @@
             background: #bdc3c7;
             border-radius: 4px;
         }
+
+
+

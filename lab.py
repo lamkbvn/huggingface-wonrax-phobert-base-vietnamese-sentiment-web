@@ -10,7 +10,7 @@ tokenizer = AutoTokenizer.from_pretrained(
     "wonrax/phobert-base-vietnamese-sentiment", use_fast=False
 )
 
-sentences = ["Hôm nay tôi rất vui " ,"Món ăn này dở quá" , "Thời tiết bình thường" , "Rat vui hom nay","Công việc ổn định" , "Phim này hay lắm" , "Tôi buồn vì thất bại" , "Ngày mai đi học" , "Cảm ơn bạn rất nhiều" , "Mệt mỏi quá hôm nay"]
+sentences = ["Hôm nay tôi rất vui "]
 
 for sentence in sentences :
 
@@ -20,7 +20,7 @@ for sentence in sentences :
     # Mã hóa bằng tokenizer
     encoded = tokenizer.encode(segmented)
 
-    # print(tokenizer.convert_ids_to_tokens(encoded))
+    print(tokenizer.convert_ids_to_tokens(encoded))
 
     # Tạo tensor input
     input_ids = torch.tensor([encoded])
@@ -29,6 +29,7 @@ for sentence in sentences :
     with torch.no_grad():
         logits = model(input_ids).logits
         probs = logits.softmax(dim=-1).tolist()[0]
+
 
     # ===== MAP NHÃN =====
     label_map = {
